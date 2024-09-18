@@ -1,0 +1,115 @@
+[gd_scene load_steps=12 format=3 uid="uid://d14rldu1g522p"]
+
+[ext_resource type="Texture2D" uid="uid://cig7tpmquotop" path="res://planeBlue1.png" id="1_bd4sv"]
+[ext_resource type="Script" path="res://plane.gd" id="1_mp4ot"]
+[ext_resource type="Script" path="res://flappyController.gd" id="1_mprjx"]
+[ext_resource type="Texture2D" uid="uid://ct07rmpb7k8ka" path="res://planeBlue2.png" id="2_85f30"]
+[ext_resource type="Texture2D" uid="uid://dgrhhqtqhcf6y" path="res://planeBlue3.png" id="3_yv224"]
+[ext_resource type="AudioStream" uid="uid://bhccjt36chh32" path="res://Three Red Hearts - Candy.ogg" id="6_8gd5x"]
+[ext_resource type="AudioStream" uid="uid://dswegy8epynuw" path="res://impactPunch_medium_001.ogg" id="7_sqm6m"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_nttbl"]
+radius = 47.0956
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_tsrm7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_bd4sv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_85f30")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_yv224")
+}, {
+"duration": 1.0,
+"texture": ExtResource("1_bd4sv")
+}],
+"loop": false,
+"name": &"flap",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_bd4sv")
+}],
+"loop": true,
+"name": &"glide",
+"speed": 5.0
+}]
+
+[sub_resource type="Animation" id="Animation_22gxa"]
+resource_name = "gameOverAnim"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fqkwp"]
+_data = {
+"gameOverAnim": SubResource("Animation_22gxa")
+}
+
+[node name="spinnyplane" type="Node2D"]
+script = ExtResource("1_mprjx")
+
+[node name="plane" type="RigidBody2D" parent="."]
+position = Vector2(131, 310)
+gravity_scale = 0.2
+script = ExtResource("1_mp4ot")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="plane"]
+shape = SubResource("CircleShape2D_nttbl")
+
+[node name="PlaneAnimation2D" type="AnimatedSprite2D" parent="plane"]
+position = Vector2(0, 2)
+sprite_frames = SubResource("SpriteFrames_tsrm7")
+animation = &"flap"
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="soundeffect" type="Node2D" parent="."]
+
+[node name="bgm" type="AudioStreamPlayer2D" parent="soundeffect"]
+position = Vector2(-42, 56)
+stream = ExtResource("6_8gd5x")
+volume_db = 1.0
+autoplay = true
+
+[node name="thud" type="AudioStreamPlayer2D" parent="soundeffect"]
+position = Vector2(-33, 15)
+stream = ExtResource("7_sqm6m")
+volume_db = 1.0
+
+[node name="gameOver" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = -1.0
+offset_top = 238.0
+offset_right = 63.0
+offset_bottom = 341.0
+
+[node name="Label" type="Label" parent="gameOver"]
+layout_mode = 0
+offset_left = 551.0
+offset_top = 17.0
+offset_right = 638.0
+offset_bottom = 40.0
+text = "Game Over"
+
+[node name="Button" type="Button" parent="gameOver"]
+layout_mode = 0
+offset_left = 550.0
+offset_top = 67.0
+offset_right = 638.0
+offset_bottom = 98.0
+text = "Play Again"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="gameOver"]
+libraries = {
+"": SubResource("AnimationLibrary_fqkwp")
+}
+
+[connection signal="animation_finished" from="plane/PlaneAnimation2D" to="plane" method="_on_plane_animation_2d_animation_finished"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="pressed" from="gameOver/Button" to="." method="_on_button_pressed"]
